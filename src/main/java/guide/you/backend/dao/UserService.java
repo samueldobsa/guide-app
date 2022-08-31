@@ -1,9 +1,11 @@
 package guide.you.backend.dao;
 
-import guide.you.backend.entity.Post;
+import guide.you.backend.entity.User;
 import org.springframework.data.cassandra.repository.ReactiveCassandraRepository;
+
 
 import java.util.UUID;
 
-public interface PostRepository extends ReactiveCassandraRepository<Post, UUID> {
+public interface UserService extends ReactiveCassandraRepository<User, UUID> {
+
 }
