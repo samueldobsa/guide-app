@@ -1,8 +1,8 @@
 package guide.you.backend;
 
 
-import guide.you.backend.dao.PostRepository;
-import guide.you.backend.entity.Post;
+import guide.you.backend.dao.TripService;
+import guide.you.backend.entity.Trip;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,16 +41,16 @@ public class PostRepositoryWithTestContainersTest {
 
 
     @Autowired
-    private PostRepository posts;
+    private TripService tripService;
 
     @BeforeEach
     public void setup() {
-        this.posts.deleteAll()
+        this.tripService.deleteAll()
                 .then()
                 .thenMany(
-                        posts.saveAll(
-                                List.of(Post.builder().title("test").content("content of test title").build(),
-                                        Post.builder().title("test2").content("content of test2 title").build()
+                        tripService.saveAll(
+                                List.of(Trip.builder().title("test").content("content of test title").build(),
+                                        Trip.builder().title("test2").content("content of test2 title").build()
                                 )
                         )
                 )
@@ -61,7 +61,7 @@ public class PostRepositoryWithTestContainersTest {
     @Test
     void testAllPosts() {
 
-        posts.findAll().sort(Comparator.comparing(Post::getTitle))
+        tripService.findAll().sort(Comparator.comparing(Trip::getTitle))
                 .as(StepVerifier::create)
                 .consumeNextWith(p -> assertEquals("test", p.getTitle()))
                 .consumeNextWith(p -> assertEquals("test2", p.getTitle()))
