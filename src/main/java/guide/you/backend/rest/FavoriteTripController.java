@@ -19,7 +19,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-@Component
 @Controller
 @RequestMapping("favorite_trip")
 @RequiredArgsConstructor
