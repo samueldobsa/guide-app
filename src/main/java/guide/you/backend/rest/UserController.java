@@ -3,7 +3,9 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.UserRepository;
 import guide.you.backend.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -14,6 +16,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Controller
 @RequestMapping("user")
 public class UserController {
 

@@ -3,7 +3,9 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.GuideRepository;
 import guide.you.backend.entity.Guide;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -13,6 +15,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Component
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("guide")
 public class GuideController {

@@ -1,8 +1,10 @@
 package guide.you.backend.rest;
 
-import guide.you.backend.dao.UserReviewRepository;
+import guide.you.backend.dao.UserReviewService;
 import guide.you.backend.entity.UserReview;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -12,28 +14,29 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
+@Component
 @Controller
 @RequestMapping("user_review")
 @RequiredArgsConstructor
 public class UserReviewController {
 
-    private final UserReviewRepository userReviewRepository;
+    private final UserReviewService userReviewService;
 
     @GetMapping
     public Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.userReviewRepository.findAll(), UserReviewRepository.class);
+        return ServerResponse.ok().body(this.userReviewService.findAll(), UserReviewService.class);
     }
 
     @PostMapping
     public Mono<ServerResponse> create(ServerRequest request){
         return request.bodyToMono(UserReview.class)
-                .flatMap(userReview -> this.userReviewRepository.save(userReview))
-                .flatMap(u -> ServerResponse.created(URI.create("/user-rreview/" + u.getId())).build());
+                .flatMap(userReview -> this.userReviewService.save(userReview))
+                .flatMap(u -> ServerResponse.created(URI.create("/user-review/" + u.getId())).build());
     }
 
     @GetMapping("{id}")
     public Mono<ServerResponse> get(ServerRequest request){
-        return this.userReviewRepository.findById(UUID.fromString(request.pathVariable("id")))
+        return this.userReviewService.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(userReview -> ServerResponse.ok().body(Mono.just(userReview), UserReview.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -49,17 +52,17 @@ public class UserReviewController {
                     userReview.setRate(userReview1.getRate());
                     return userReview;
                 },
-                this.userReviewRepository.findById(UUID.fromString(request.pathVariable("id"))),
+                this.userReviewService.findById(UUID.fromString(request.pathVariable("id"))),
                 request.bodyToMono(UserReview.class)
         )
                 .cast(UserReview.class)
-                .flatMap(userReview -> this.userReviewRepository.save(userReview))
+                .flatMap(userReview -> this.userReviewService.save(userReview))
                 .flatMap(userReview -> ServerResponse.noContent().build());
     }
 
     @DeleteMapping("{id}")
     public Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.userReviewRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
+        return ServerResponse.noContent().build(this.userReviewService.deleteById(UUID.fromString(request.pathVariable("id"))));
     }
 
 

@@ -3,7 +3,9 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.FavoriteTripRepository;
 import guide.you.backend.entity.FavoriteTrip;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Component
+@Controller
 @RequestMapping("favorite_trip")
 @RequiredArgsConstructor
 public class FavoriteTripController {
