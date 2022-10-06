@@ -3,6 +3,8 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.UserReviewService;
 import guide.you.backend.entity.UserReview;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
+@Component
 @Controller
 @RequestMapping("user_review")
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class UserReviewController {
     public Mono<ServerResponse> create(ServerRequest request){
         return request.bodyToMono(UserReview.class)
                 .flatMap(userReview -> this.userReviewService.save(userReview))
-                .flatMap(u -> ServerResponse.created(URI.create("/user-rreview/" + u.getId())).build());
+                .flatMap(u -> ServerResponse.created(URI.create("/user-review/" + u.getId())).build());
     }
 
     @GetMapping("{id}")

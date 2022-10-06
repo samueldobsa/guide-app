@@ -4,7 +4,9 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.TripService;
 import guide.you.backend.entity.Trip;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -14,6 +16,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Component
+@Controller
 @RequestMapping("trip")
 @RequiredArgsConstructor
 public class TripController {

@@ -2,8 +2,11 @@ package guide.you.backend.rest;
 
 import guide.you.backend.dao.CompletedTripService;
 import guide.you.backend.entity.CompletedTrip;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +19,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Component
+@Controller
 @RequestMapping("completed_trip")
 @RequiredArgsConstructor
 public class CompletedTripController {
