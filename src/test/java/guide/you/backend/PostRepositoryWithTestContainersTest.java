@@ -1,7 +1,7 @@
 package guide.you.backend;
 
 
-import guide.you.backend.dao.TripService;
+import guide.you.backend.dao.TripRepository;
 import guide.you.backend.entity.Trip;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +41,7 @@ public class PostRepositoryWithTestContainersTest {
 
 
     @Autowired
-    private TripService tripService;
+    private TripRepository tripService;
 
     @BeforeEach
     public void setup() {

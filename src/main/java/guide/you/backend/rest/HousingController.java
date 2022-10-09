@@ -1,6 +1,6 @@
 package guide.you.backend.rest;
 
-import guide.you.backend.dao.HousingService;
+import guide.you.backend.dao.HousingRepository;
 import guide.you.backend.entity.Housing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,23 +17,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class HousingController {
 
-    private final HousingService housingService;
+    private final HousingRepository housingRepository;
 
     @GetMapping
     private Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.housingService.findAll(), Housing.class);
+        return ServerResponse.ok().body(this.housingRepository.findAll(), Housing.class);
     }
 
     @PostMapping
     private Mono<ServerResponse> create(ServerRequest request){
         return request.bodyToMono(Housing.class)
-                .flatMap(housing -> this.housingService.save(housing))
+                .flatMap(housing -> this.housingRepository.save(housing))
                 .flatMap(housing -> ServerResponse.created(URI.create("/housing/" + housing.getId())).build());
     }
 
     @GetMapping("id")
     private Mono<ServerResponse> get(ServerRequest request){
-        return this.housingService.findById(UUID.fromString(request.pathVariable("id")))
+        return this.housingRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(housing -> ServerResponse.ok().body(Mono.just(housing), Housing.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -49,17 +49,17 @@ public class HousingController {
                             housing.setInGuidesHome(housing1.isInGuidesHome());
                             return housing;
                         },
-                        this.housingService.findById(UUID.fromString(request.pathVariable("id"))),
+                        this.housingRepository.findById(UUID.fromString(request.pathVariable("id"))),
                         request.bodyToMono(Housing.class)
                 )
                 .cast(Housing.class)
-                .flatMap(housing -> this.housingService.save(housing))
+                .flatMap(housing -> this.housingRepository.save(housing))
                 .flatMap(housing -> ServerResponse.noContent().build());
     }
 
     @DeleteMapping("id")
     private Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.notFound().build(this.housingService.deleteById(UUID.fromString(request.pathVariable("id"))));
+        return ServerResponse.notFound().build(this.housingRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
     }
 
 

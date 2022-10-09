@@ -5,5 +5,5 @@ import org.springframework.data.cassandra.repository.ReactiveCassandraRepository
 
 import java.util.UUID;
 
-public interface PlannedTripService extends ReactiveCassandraRepository<PlannedTrip, UUID> {
+public interface PlannedTripRepository extends ReactiveCassandraRepository<PlannedTrip, UUID> {
 }

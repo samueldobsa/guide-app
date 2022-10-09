@@ -1,6 +1,6 @@
 package guide.you.backend.rest;
 
-import guide.you.backend.dao.GuideService;
+import guide.you.backend.dao.GuideRepository;
 import guide.you.backend.entity.Guide;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ import java.util.UUID;
 @RequestMapping("guide")
 public class GuideController {
 
-    private final GuideService guideService;
+    private final GuideRepository guideRepository;
 
     @GetMapping("{id}")
     public Mono<ServerResponse> get(ServerRequest request){
-        return this.guideService.findById(UUID.fromString(request.pathVariable("id")))
+        return this.guideRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(guide -> ServerResponse.ok().body(Mono.just(guide), Guide.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -29,13 +29,13 @@ public class GuideController {
     @PostMapping
     public Mono<ServerResponse> create(ServerRequest request){
         return request.bodyToMono(Guide.class)
-                .flatMap(guide -> this.guideService.save(guide))
+                .flatMap(guide -> this.guideRepository.save(guide))
                 .flatMap(guide -> ServerResponse.created(URI.create("/guide/" + guide.getId())).build());
     }
 
     @GetMapping
     public Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.guideService.findAll(), Guide.class);
+        return ServerResponse.ok().body(this.guideRepository.findAll(), Guide.class);
     }
 
     @PatchMapping("{id}")
@@ -56,17 +56,17 @@ public class GuideController {
                             g.setActive(g2.isActive());
                             return g;
                         },
-                        this.guideService.findById(UUID.fromString(request.pathVariable("id"))),
+                        this.guideRepository.findById(UUID.fromString(request.pathVariable("id"))),
                         request.bodyToMono(Guide.class)
                 )
                 .cast(Guide.class)
-                .flatMap(guide -> this.guideService.save(guide))
+                .flatMap(guide -> this.guideRepository.save(guide))
                 .flatMap(guide -> ServerResponse.noContent().build());
     }
 
     @DeleteMapping("{id}")
     public Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.guideService.deleteById(UUID.fromString(request.pathVariable("id"))));
+        return ServerResponse.noContent().build(this.guideRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
     }
 
 

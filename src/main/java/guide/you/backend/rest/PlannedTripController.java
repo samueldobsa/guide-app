@@ -1,6 +1,6 @@
 package guide.you.backend.rest;
 
-import guide.you.backend.dao.PlannedTripService;
+import guide.you.backend.dao.PlannedTripRepository;
 import guide.you.backend.entity.PlannedTrip;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,23 +17,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PlannedTripController {
 
-    private final PlannedTripService plannedTripService;
+    private final PlannedTripRepository plannedTripRepository;
 
     @GetMapping
     private Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.plannedTripService.findAll(), PlannedTrip.class);
+        return ServerResponse.ok().body(this.plannedTripRepository.findAll(), PlannedTrip.class);
     }
 
     @PostMapping
     private Mono<ServerResponse> create(ServerRequest request){
         return request.bodyToMono(PlannedTrip.class)
-                .flatMap(plannedTrip -> this.plannedTripService.save(plannedTrip))
+                .flatMap(plannedTrip -> this.plannedTripRepository.save(plannedTrip))
                 .flatMap(plannedTrip -> ServerResponse.created(URI.create("/planned-trip/" + plannedTrip.getId())).build());
     }
 
     @GetMapping("{id}")
     private Mono<ServerResponse> get(ServerRequest request){
-        return this.plannedTripService.findById(UUID.fromString(request.pathVariable("id")))
+        return this.plannedTripRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(plannedTrip -> ServerResponse.ok().body(Mono.just(plannedTrip), PlannedTrip.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -49,17 +49,17 @@ public class PlannedTripController {
                             plannedTrip.setDestination(plannedTrip1.getDestination());
                             return plannedTrip;
                         },
-                        this.plannedTripService.findById(UUID.fromString(request.pathVariable("id"))),
+                        this.plannedTripRepository.findById(UUID.fromString(request.pathVariable("id"))),
                         request.bodyToMono(PlannedTrip.class)
                 )
                 .cast(PlannedTrip.class)
-                .flatMap(plannedTrip -> this.plannedTripService.save(plannedTrip))
+                .flatMap(plannedTrip -> this.plannedTripRepository.save(plannedTrip))
                 .flatMap(plannedTrip -> ServerResponse.noContent().build());
     }
 
     @DeleteMapping("{id}")
     private Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.plannedTripService.deleteById(UUID.fromString(request.pathVariable("id"))));
+        return ServerResponse.noContent().build(this.plannedTripRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
     }
 
 }

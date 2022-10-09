@@ -1,6 +1,6 @@
 package guide.you.backend.rest;
 
-import guide.you.backend.dao.UserService;
+import guide.you.backend.dao.UserRepository;
 import guide.you.backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,11 +17,11 @@ import java.util.UUID;
 @RequestMapping("user")
 public class UserController {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @GetMapping("{id}")
     public Mono<ServerResponse>get(ServerRequest request){
-        return this.userService.findById(UUID.fromString(request.pathVariable("id")))
+        return this.userRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(user -> ServerResponse.ok().body(Mono.just(user), User.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
@@ -29,13 +29,13 @@ public class UserController {
     @PostMapping
     public Mono<ServerResponse>create(ServerRequest request){
         return request.bodyToMono(User.class)
-                .flatMap(user -> this.userService.save(user))
+                .flatMap(user -> this.userRepository.save(user))
                 .flatMap(user -> ServerResponse.created(URI.create("/user/" + user.getId())).build());
     }
 
     @GetMapping
     public Mono<ServerResponse>all(ServerRequest request){
-        return ServerResponse.ok().body(this.userService.findAll(), User.class);
+        return ServerResponse.ok().body(this.userRepository.findAll(), User.class);
     }
 
     @PatchMapping("{id}")
@@ -53,17 +53,17 @@ public class UserController {
                             u.setMoney(u2.getMoney());
                             return u;
                         },
-                        this.userService.findById(UUID.fromString(request.pathVariable("id"))),
+                        this.userRepository.findById(UUID.fromString(request.pathVariable("id"))),
                         request.bodyToMono(User.class)
                 )
                 .cast(User.class)
-                .flatMap(user -> this.userService.save(user))
+                .flatMap(user -> this.userRepository.save(user))
                 .flatMap(user -> ServerResponse.noContent().build());
     }
 
     @DeleteMapping
     public Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.userService.deleteById(UUID.fromString(request.pathVariable("id"))));
+        return ServerResponse.noContent().build(this.userRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
     }
 
 

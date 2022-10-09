@@ -1,11 +1,9 @@
 package guide.you.backend.dao;
 
-import guide.you.backend.entity.User;
+import guide.you.backend.entity.Housing;
 import org.springframework.data.cassandra.repository.ReactiveCassandraRepository;
-
 
 import java.util.UUID;
 
-public interface UserService extends ReactiveCassandraRepository<User, UUID> {
-
+public interface HousingRepository extends ReactiveCassandraRepository<Housing, UUID> {
 }

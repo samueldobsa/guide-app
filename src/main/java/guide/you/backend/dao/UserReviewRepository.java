@@ -5,5 +5,5 @@ import org.springframework.data.cassandra.repository.ReactiveCassandraRepository
 
 import java.util.UUID;
 
-public interface UserReviewService extends ReactiveCassandraRepository<UserReview, UUID> {
+public interface UserReviewRepository extends ReactiveCassandraRepository<UserReview, UUID> {
 }
