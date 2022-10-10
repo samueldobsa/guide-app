@@ -1,10 +1,9 @@
 package guide.you.backend;
 
-import guide.you.backend.dao.TripService;
+import guide.you.backend.dao.TripRepository;
 import guide.you.backend.entity.Trip;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
@@ -12,23 +11,23 @@ import reactor.core.publisher.Flux;
 @Slf4j
 class DataInitializer implements CommandLineRunner {
 
-    private final TripService tripService;
+    private final TripRepository tripRepository;
 
-    public DataInitializer(TripService tripService) {
-        this.tripService = tripService;
+    public DataInitializer(TripRepository tripService) {
+        this.tripRepository = tripService;
     }
 
 
     @Override
     public void run(String[] args) {
         log.info("start data initialization  ...");
-        this.tripService
+        this.tripRepository
                 .deleteAll()
                 .thenMany(
                         Flux
                                 .just("Post one", "Post two")
                                 .flatMap(
-                                        title -> this.tripService.save(Trip.builder().title(title).content("content of " + title).build())
+                                        title -> this.tripRepository.save(Trip.builder().title(title).content("content of " + title).build())
                                 )
                 )
                 .log()
