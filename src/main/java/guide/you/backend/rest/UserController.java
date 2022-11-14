@@ -3,6 +3,7 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.UserRepository;
 import guide.you.backend.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -16,12 +17,13 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("user")
+@RequestMapping("/user")
 public class UserController {
 
+    @Autowired
     private final UserRepository userRepository;
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Mono<ServerResponse>get(ServerRequest request){
         return this.userRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(user -> ServerResponse.ok().body(Mono.just(user), User.class))
@@ -35,12 +37,12 @@ public class UserController {
                 .flatMap(user -> ServerResponse.created(URI.create("/user/" + user.getId())).build());
     }
 
-    @GetMapping
+    @GetMapping("/")
     public Mono<ServerResponse>all(ServerRequest request){
         return ServerResponse.ok().body(this.userRepository.findAll(), User.class);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public Mono<ServerResponse> update(ServerRequest request){
         return Mono
                 .zip(

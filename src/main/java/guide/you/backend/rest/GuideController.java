@@ -16,12 +16,12 @@ import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("guide")
+@RequestMapping("/guide")
 public class GuideController {
 
     private final GuideRepository guideRepository;
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public Mono<ServerResponse> get(ServerRequest request){
         return this.guideRepository.findById(UUID.fromString(request.pathVariable("id")))
                 .flatMap(guide -> ServerResponse.ok().body(Mono.just(guide), Guide.class))
@@ -40,7 +40,7 @@ public class GuideController {
         return ServerResponse.ok().body(this.guideRepository.findAll(), Guide.class);
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public Mono<ServerResponse> update(ServerRequest request){
         return Mono
                 .zip(

@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("planned_trip")
+@RequestMapping("/planned_trip")
 @RequiredArgsConstructor
 public class PlannedTripController {
 

@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("user_review")
+@RequestMapping("/user_review")
 @RequiredArgsConstructor
 public class UserReviewController {
 
@@ -38,7 +38,7 @@ public class UserReviewController {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
-    @PatchMapping("{id}")
+    @PatchMapping("/{id}")
     public Mono<ServerResponse> update(ServerRequest request){
         return Mono.zip(
                 (data) -> {

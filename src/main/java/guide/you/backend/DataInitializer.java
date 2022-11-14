@@ -3,6 +3,7 @@ package guide.you.backend;
 import guide.you.backend.dao.TripRepository;
 import guide.you.backend.entity.Trip;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -13,8 +14,9 @@ class DataInitializer implements CommandLineRunner {
 
     private final TripRepository tripRepository;
 
-    public DataInitializer(TripRepository tripService) {
-        this.tripRepository = tripService;
+    @Autowired
+    public DataInitializer(TripRepository tripRepository) {
+        this.tripRepository = tripRepository;
     }
 
 

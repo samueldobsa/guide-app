@@ -1,13 +1,22 @@
 package guide.you.backend.service;
 
+import guide.you.backend.dao.TripRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PlannedTripServiceImpl {
 
-    private final PlannedTripServiceImpl plannedTripService;
+    private final TripRepository tripRepository;
 
-    public PlannedTripServiceImpl(PlannedTripServiceImpl plannedTripService) {
-        this.plannedTripService = plannedTripService;
+    @Autowired
+    public PlannedTripServiceImpl(TripRepository tripRepository) {
+        this.tripRepository = tripRepository;
     }
+
+//    private final PlannedTripServiceImpl plannedTripService;
+//
+//    public PlannedTripServiceImpl(PlannedTripServiceImpl plannedTripService) {
+//        this.plannedTripService = plannedTripService;
+//    }
 }

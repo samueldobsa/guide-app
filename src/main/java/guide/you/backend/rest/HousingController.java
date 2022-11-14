@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("housing")
+@RequestMapping("/housing")
 @RequiredArgsConstructor
 public class HousingController {
 
