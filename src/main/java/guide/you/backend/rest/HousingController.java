@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping("/housing")
 @RequiredArgsConstructor
 public class HousingController {

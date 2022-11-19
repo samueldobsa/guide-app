@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/guide")
 public class GuideController {

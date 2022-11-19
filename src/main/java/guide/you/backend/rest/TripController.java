@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping("/trip")
 @RequiredArgsConstructor
 public class TripController {

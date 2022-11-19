@@ -15,8 +15,8 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.UUID;
 
+@RestController
 @RequiredArgsConstructor
-@Controller
 @RequestMapping("/user")
 public class UserController {
 
