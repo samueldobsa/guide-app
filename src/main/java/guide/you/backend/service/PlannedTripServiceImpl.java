@@ -14,9 +14,4 @@ public class PlannedTripServiceImpl {
         this.tripRepository = tripRepository;
     }
 
-//    private final PlannedTripServiceImpl plannedTripService;
-//
-//    public PlannedTripServiceImpl(PlannedTripServiceImpl plannedTripService) {
-//        this.plannedTripService = plannedTripService;
-//    }
 }

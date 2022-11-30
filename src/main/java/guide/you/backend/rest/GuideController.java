@@ -2,13 +2,17 @@ package guide.you.backend.rest;
 
 import guide.you.backend.dao.GuideRepository;
 import guide.you.backend.entity.Guide;
+import guide.you.backend.entity.PlannedTrip;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -21,54 +25,61 @@ public class GuideController {
 
     private final GuideRepository guideRepository;
 
-    @GetMapping("/{id}")
-    public Mono<ServerResponse> get(ServerRequest request){
-        return this.guideRepository.findById(UUID.fromString(request.pathVariable("id")))
-                .flatMap(guide -> ServerResponse.ok().body(Mono.just(guide), Guide.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+    @GetMapping
+    public Flux<Guide> all(){
+        return guideRepository.findAll();
     }
 
     @PostMapping
-    public Mono<ServerResponse> create(ServerRequest request){
-        return request.bodyToMono(Guide.class)
-                .flatMap(guide -> this.guideRepository.save(guide))
-                .flatMap(guide -> ServerResponse.created(URI.create("/guide/" + guide.getId())).build());
+    public Mono<Guide> create(@RequestBody Guide guide){
+        return guideRepository.save(guide);
     }
 
-    @GetMapping
-    public Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.guideRepository.findAll(), Guide.class);
+    @GetMapping("/{id}")
+    public Mono<Guide> get(@PathVariable UUID id){
+        return guideRepository.findById(id);
     }
 
     @PatchMapping("/{id}")
-    public Mono<ServerResponse> update(ServerRequest request){
-        return Mono
-                .zip(
-                        (data) -> {
-                            Guide g = (Guide) data[0];
-                            Guide g2 = (Guide) data[1];
-                            g.setName(g2.getName());
-                            g.setSurname(g2.getSurname());
-                            g.setUserName(g2.getUserName());
-                            g.setEmail(g2.getEmail());
-                            g.setPhone_number(g2.getPhone_number());
-                            g.setDescription(g2.getDescription());
-                            g.setLanguage(g2.getLanguage());
-                            g.setDestination(g2.getDestination());
-                            g.setActive(g2.isActive());
-                            return g;
-                        },
-                        this.guideRepository.findById(UUID.fromString(request.pathVariable("id"))),
-                        request.bodyToMono(Guide.class)
-                )
-                .cast(Guide.class)
-                .flatMap(guide -> this.guideRepository.save(guide))
-                .flatMap(guide -> ServerResponse.noContent().build());
+    public Mono<ResponseEntity<Guide>> update(@PathVariable UUID id, @RequestBody Guide guide){
+        return guideRepository.findById(id)
+                .flatMap(existing -> {
+                    if (guide.getName() != null){
+                        existing.setName(guide.getName());
+                    }
+                    if (guide.getSurname() != null){
+                        existing.setSurname(guide.getSurname());
+                    }
+                    if (guide.getUserName() != null){
+                        existing.setUserName(guide.getUserName());
+                    }
+                    if (guide.getEmail() != null){
+                        existing.setEmail(guide.getEmail());
+                    }
+                    if (guide.getPhone_number() != null){
+                        existing.setPhone_number(guide.getPhone_number());
+                    }
+                    if (guide.getDescription() != null){
+                        existing.setDescription(guide.getDescription());
+                    }
+                    if (guide.getLanguage() != null){
+                        existing.setLanguage(guide.getLanguage());
+                    }
+                    if (guide.getDestination() != null){
+                        existing.setDestination(guide.getDestination());
+                    }
+                    if (guide.isActive() != false){
+                        existing.setActive(guide.isActive());
+                    }
+                    return guideRepository.save(existing);
+                })
+                .map(updatedGuide -> new ResponseEntity<>(updatedGuide, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("{id}")
-    public Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.guideRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable UUID id){
+        return guideRepository.deleteById(id);
     }
 
 

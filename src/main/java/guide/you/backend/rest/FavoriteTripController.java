@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -22,26 +23,22 @@ public class FavoriteTripController {
     private final FavoriteTripRepository favoriteTripRepository;
 
     @GetMapping
-    private Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.favoriteTripRepository.findAll(), FavoriteTrip.class);
+    public Flux<FavoriteTrip> all(){
+        return favoriteTripRepository.findAll();
     }
 
     @PostMapping
-    private Mono<ServerResponse> create(ServerRequest request){
-        return request.bodyToMono(FavoriteTrip.class)
-                .flatMap(favoriteTrip -> this.favoriteTripRepository.save(favoriteTrip))
-                .flatMap(favoriteTrip -> ServerResponse.created(URI.create("/favorite-trip/" + favoriteTrip.getId())).build());
+    public Mono<FavoriteTrip> create(@RequestBody FavoriteTrip favoriteTrip){
+        return favoriteTripRepository.save(favoriteTrip);
     }
 
-    @GetMapping("{id}")
-    private Mono<ServerResponse> get(ServerRequest request){
-        return this.favoriteTripRepository.findById(UUID.fromString(request.pathVariable("id")))
-                .flatMap(favoriteTrip -> ServerResponse.ok().body(Mono.just(favoriteTrip), FavoriteTrip.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+    @GetMapping("/{id}")
+    public Mono<FavoriteTrip> get(@PathVariable UUID id){
+        return favoriteTripRepository.findById(id);
     }
 
-    @DeleteMapping("{id}")
-    private Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.favoriteTripRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable UUID id){
+        return favoriteTripRepository.deleteById(id);
     }
 }

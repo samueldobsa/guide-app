@@ -4,11 +4,14 @@ import guide.you.backend.dao.PlannedTripRepository;
 import guide.you.backend.entity.PlannedTrip;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -22,46 +25,38 @@ public class PlannedTripController {
     private final PlannedTripRepository plannedTripRepository;
 
     @GetMapping
-    private Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.plannedTripRepository.findAll(), PlannedTrip.class);
+    private Flux<PlannedTrip> all(){
+        return plannedTripRepository.findAll();
     }
 
     @PostMapping
-    private Mono<ServerResponse> create(ServerRequest request){
-        return request.bodyToMono(PlannedTrip.class)
-                .flatMap(plannedTrip -> this.plannedTripRepository.save(plannedTrip))
-                .flatMap(plannedTrip -> ServerResponse.created(URI.create("/planned-trip/" + plannedTrip.getId())).build());
+    private Mono<PlannedTrip> create(@RequestBody PlannedTrip plannedTrip){
+        return plannedTripRepository.save(plannedTrip);
     }
 
-    @GetMapping("{id}")
-    private Mono<ServerResponse> get(ServerRequest request){
-        return this.plannedTripRepository.findById(UUID.fromString(request.pathVariable("id")))
-                .flatMap(plannedTrip -> ServerResponse.ok().body(Mono.just(plannedTrip), PlannedTrip.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+    @GetMapping("/{id}")
+    private Mono<PlannedTrip> get(@PathVariable UUID id) {
+        return plannedTripRepository.findById(id);
     }
 
-    @PatchMapping("{id}")
-    private Mono<ServerResponse> update(ServerRequest request){
-        return Mono
-                .zip(
-                        (data) -> {
-                            PlannedTrip plannedTrip = (PlannedTrip) data[0];
-                            PlannedTrip plannedTrip1 = (PlannedTrip) data[1];
-                            plannedTrip.setPlannedDate(plannedTrip1.getPlannedDate());
-                            plannedTrip.setDestination(plannedTrip1.getDestination());
-                            return plannedTrip;
-                        },
-                        this.plannedTripRepository.findById(UUID.fromString(request.pathVariable("id"))),
-                        request.bodyToMono(PlannedTrip.class)
-                )
-                .cast(PlannedTrip.class)
-                .flatMap(plannedTrip -> this.plannedTripRepository.save(plannedTrip))
-                .flatMap(plannedTrip -> ServerResponse.noContent().build());
+    @PatchMapping("/{id}")
+    private Mono<ResponseEntity<PlannedTrip>> update(@PathVariable UUID id, @RequestBody PlannedTrip plannedTrip){
+        return plannedTripRepository.findById(id)
+                .flatMap(existing -> {
+                    if (plannedTrip.getPlannedDate() != null){
+                        existing.setPlannedDate(plannedTrip.getPlannedDate());
+                    }
+                    if (plannedTrip.getDestination() != null){
+                        existing.setDestination(plannedTrip.getDestination());
+                    }
+                    return plannedTripRepository.save(existing);
+                })
+                .map(updatePlannedTrip -> new ResponseEntity<>(updatePlannedTrip, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("{id}")
-    private Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.plannedTripRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
+    @DeleteMapping("/{id}")
+    private Mono<Void> delete(@PathVariable UUID id){
+        return plannedTripRepository.deleteById(id);
     }
-
 }

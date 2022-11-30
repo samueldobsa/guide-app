@@ -5,11 +5,14 @@ import guide.you.backend.dao.TripRepository;
 import guide.you.backend.entity.Trip;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -22,55 +25,55 @@ public class TripController {
 
     private final TripRepository tripRepository;
 
-
     @GetMapping
-    public Mono<ServerResponse> all(ServerRequest req) {
-        return ServerResponse.ok().body(this.tripRepository.findAll(), Trip.class);
+    public Flux<Trip> all() {
+        return tripRepository.findAll();
     }
 
     @PostMapping
-    public Mono<ServerResponse> create(ServerRequest req) {
-        return req.bodyToMono(Trip.class)
-                .flatMap(trip -> this.tripRepository.save(trip))
-                .flatMap(t -> ServerResponse.created(URI.create("/trip/" + t.getId())).build());
+    public Mono<Trip> create(@RequestBody Trip trip) {
+        return tripRepository.save(trip);
     }
 
-    @GetMapping("{id}")
-    public Mono<ServerResponse> get(ServerRequest req) {
-        return this.tripRepository.findById(UUID.fromString(req.pathVariable("id")))
-                .flatMap(trip -> ServerResponse.ok().body(Mono.just(trip), Trip.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+    @GetMapping("/{id}")
+    public Mono<Trip> get(@PathVariable UUID id) {
+        return tripRepository.findById(id);
     }
 
-    @PatchMapping("{id}")
-    public Mono<ServerResponse> update(ServerRequest req) {
-
-        return Mono
-                .zip(
-                        (data) -> {
-                            Trip trip = (Trip) data[0];
-                            Trip trip2 = (Trip) data[1];
-                            trip.setTitle(trip2.getTitle());
-                            trip.setContent(trip2.getContent());
-                            trip.setCategory(trip2.getCategory());
-                            trip.setImage(trip2.getImage());
-                            trip.setDuration(trip2.getDuration());
-                            trip.setPrice(trip2.getPrice());
-                            trip.setDestination(trip2.getDestination());
-                            return trip;
-                        },
-                        this.tripRepository.findById(UUID.fromString(req.pathVariable("id"))),
-                        req.bodyToMono(Trip.class)
-                )
-                .cast(Trip.class)
-                .flatMap(trip -> this.tripRepository.save(trip))
-                .flatMap(trip -> ServerResponse.noContent().build());
-
+    @PatchMapping("/{id}")
+    public Mono<ResponseEntity<Trip>> update(@PathVariable UUID id, @RequestBody Trip trip) {
+        return tripRepository.findById(id)
+                .flatMap(existing -> {
+                    if (trip.getDestination() != null){
+                        existing.setDestination(trip.getDestination());
+                    }
+                    if (trip.getTitle() != null){
+                        existing.setTitle(trip.getTitle());
+                    }
+                    if (trip.getContent() != null){
+                        existing.setContent(trip.getContent());
+                    }
+                    if (trip.getCategory() != null){
+                        existing.setCategory(trip.getCategory());
+                    }
+                    if (trip.getImage() != null){
+                        existing.setImage(trip.getImage());
+                    }
+                    if (trip.getDuration() != 0.0){
+                        existing.setDuration(trip.getDuration());
+                    }
+                    if (trip.getPrice() != null){
+                        existing.setPrice(trip.getPrice());
+                    }
+                    return tripRepository.save(existing);
+                })
+                .map(updatedTrip -> new ResponseEntity<>(updatedTrip, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("{id}")
-    public Mono<ServerResponse> delete(ServerRequest req) {
-        return ServerResponse.noContent().build(this.tripRepository.deleteById(UUID.fromString(req.pathVariable("id"))));
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable UUID id) {
+        return tripRepository.deleteById(id);
     }
 
 }

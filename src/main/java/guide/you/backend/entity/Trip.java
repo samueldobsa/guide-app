@@ -21,6 +21,7 @@ public class Trip {
 
     @PrimaryKeyColumn(name = "id", type = PrimaryKeyType.PARTITIONED)
     @Builder.Default
+    @Id
     private UUID id = UUID.randomUUID();
 //    Guide's ID. According to this, we know who Lead belongs to.
     private UUID guideId;

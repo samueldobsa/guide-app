@@ -3,10 +3,13 @@ package guide.you.backend.rest;
 import guide.you.backend.dao.UserReviewRepository;
 import guide.you.backend.entity.UserReview;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -20,46 +23,42 @@ public class UserReviewController {
     private final UserReviewRepository userReviewRepository;
 
     @GetMapping
-    public Mono<ServerResponse> all(ServerRequest request){
-        return ServerResponse.ok().body(this.userReviewRepository.findAll(), UserReviewRepository.class);
+    public Flux<UserReview> all(){
+        return userReviewRepository.findAll();
     }
 
     @PostMapping
-    public Mono<ServerResponse> create(ServerRequest request){
-        return request.bodyToMono(UserReview.class)
-                .flatMap(userReview -> this.userReviewRepository.save(userReview))
-                .flatMap(u -> ServerResponse.created(URI.create("/user-review/" + u.getId())).build());
+    public Mono<UserReview> create(@RequestBody UserReview userReview){
+        return userReviewRepository.save(userReview);
     }
 
-    @GetMapping("{id}")
-    public Mono<ServerResponse> get(ServerRequest request){
-        return this.userReviewRepository.findById(UUID.fromString(request.pathVariable("id")))
-                .flatMap(userReview -> ServerResponse.ok().body(Mono.just(userReview), UserReview.class))
-                .switchIfEmpty(ServerResponse.notFound().build());
+    @GetMapping("/{id}")
+    public Mono<UserReview> get(@PathVariable UUID id){
+        return userReviewRepository.findById(id);
     }
 
     @PatchMapping("/{id}")
-    public Mono<ServerResponse> update(ServerRequest request){
-        return Mono.zip(
-                (data) -> {
-                    UserReview userReview = (UserReview) data[0];
-                    UserReview userReview1 = (UserReview) data[1];
-                    userReview.setTitle(userReview1.getTitle());
-                    userReview.setContent(userReview1.getContent());
-                    userReview.setRate(userReview1.getRate());
-                    return userReview;
-                },
-                this.userReviewRepository.findById(UUID.fromString(request.pathVariable("id"))),
-                request.bodyToMono(UserReview.class)
-        )
-                .cast(UserReview.class)
-                .flatMap(userReview -> this.userReviewRepository.save(userReview))
-                .flatMap(userReview -> ServerResponse.noContent().build());
+    public Mono<ResponseEntity<UserReview>> update(@PathVariable UUID id, @RequestBody UserReview userReview){
+        return userReviewRepository.findById(id)
+                .flatMap(existing -> {
+                    if (userReview.getTitle() != null){
+                        existing.setTitle(userReview.getTitle());
+                    }
+                    if (userReview.getContent() != null){
+                        existing.setContent(userReview.getContent());
+                    }
+                    if (userReview.getRate() >= 0 && userReview.getRate() <= 5){
+                        existing.setRate(userReview.getRate());
+                    }
+                    return userReviewRepository.save(existing);
+                })
+                .map(updatedUserReview -> new ResponseEntity<>(updatedUserReview, HttpStatus.OK))
+                .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @DeleteMapping("{id}")
-    public Mono<ServerResponse> delete(ServerRequest request){
-        return ServerResponse.noContent().build(this.userReviewRepository.deleteById(UUID.fromString(request.pathVariable("id"))));
+    @DeleteMapping("/{id}")
+    public Mono<Void> delete(@PathVariable UUID id){
+        return userReviewRepository.deleteById(id);
     }
 
 
